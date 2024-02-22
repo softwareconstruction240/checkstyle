@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public class CommentedCode extends AbstractFileSetCheck {
 
-    private static final Set<Character> CODE_LINE_END_CHARS = Set.of(';', '{', '}', '(', ')', '/');
+    private static final Set<Character> CODE_LINE_END_CHARS = Set.of(';', ',', '{', '}', '(', ')', '/');
 
     private int min = 5;
 
@@ -42,11 +42,16 @@ public class CommentedCode extends AbstractFileSetCheck {
         lines.replaceAll(String::trim);
 
         boolean inBlockComment = false;
+        boolean inTextBlock = false;
         int numLines = 0;
         int startLine = -1;
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i).trim();
             if (line.isBlank()) continue;
+            if (!line.startsWith("//") && !line.contains("/*") && !inBlockComment && line.contains("\"\"\"")) {
+                inTextBlock = !inTextBlock;
+            }
+            if(inTextBlock) continue;
             if (!line.startsWith("//") && line.contains("/*")) inBlockComment = true;
             if (line.contains("*/")) inBlockComment = false;
             if ((inBlockComment || line.startsWith("//")) &&
