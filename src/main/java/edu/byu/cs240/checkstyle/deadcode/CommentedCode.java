@@ -52,7 +52,7 @@ public class CommentedCode extends AbstractFileSetCheck {
                 inTextBlock = !inTextBlock;
             }
             if(inTextBlock) continue;
-            if (!line.startsWith("//") && line.contains("/*")) inBlockComment = true;
+            if (!line.startsWith("//") && line.contains("/*") && !line.contains("/**")) inBlockComment = true;
             if (line.contains("*/")) inBlockComment = false;
             if ((inBlockComment || line.startsWith("//")) &&
                     CODE_LINE_END_CHARS.contains(line.charAt(line.length() - 1))) {
