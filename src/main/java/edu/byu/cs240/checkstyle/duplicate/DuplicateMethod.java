@@ -2,7 +2,6 @@ package edu.byu.cs240.checkstyle.duplicate;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
-import edu.byu.cs240.checkstyle.util.TreeUtils;
 
 /**
  * Checks for duplicated methods, excluding variable names.
@@ -38,7 +37,19 @@ public class DuplicateMethod extends AbstractDuplicateCheck {
      */
     @Override
     protected boolean isTextException(DetailAST ast) {
-        return TreeUtils.isVariableName(ast);
+        return isVariableName(ast);
+    }
+
+    /**
+     * Determines if the ast node is a variable name
+     *
+     * @param ast ast node to check
+     * @return true if the ast represents a variable name, false otherwise
+     */
+    private boolean isVariableName(DetailAST ast) {
+        return ast.getType() == TokenTypes.IDENT &&
+                !(ast.getParent().getType() == TokenTypes.TYPE || ast.getParent().getType() == TokenTypes.METHOD_CALL ||
+                        (ast.getParent().getType() == TokenTypes.DOT && ast.getParent().getFirstChild() != ast));
     }
 
 
