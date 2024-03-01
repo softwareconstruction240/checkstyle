@@ -129,8 +129,8 @@ public class DuplicateLines extends AbstractFileSetCheck {
         while (origStart + i < originalLines.size() && compStart + i < compareLines.size() &&
                 originalLines.get(origStart + i).equals(compareLines.get(compStart + i))) {
             if (isIgnored(originalLines.get(origStart + i))) break;
-            i++;
             if (!originalLines.get(origStart + i).isBlank()) duplicatedLines++;
+            i++;
         }
         if (duplicatedLines >= min) {
             log(compStart + 1,
