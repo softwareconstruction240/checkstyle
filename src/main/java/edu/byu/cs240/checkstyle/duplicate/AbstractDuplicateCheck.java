@@ -2,8 +2,6 @@ package edu.byu.cs240.checkstyle.duplicate;
 
 import com.puppycrawl.tools.checkstyle.api.AbstractCheck;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
-import com.puppycrawl.tools.checkstyle.api.TokenTypes;
-import edu.byu.cs240.checkstyle.util.TreeUtils;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,8 +17,6 @@ public abstract class AbstractDuplicateCheck extends AbstractCheck {
 
     protected final Map<DetailAST, String> checkedAst = new HashMap<>();
 
-    protected String rootName;
-
     protected int minComplexity = 50;
 
 
@@ -32,18 +28,6 @@ public abstract class AbstractDuplicateCheck extends AbstractCheck {
     public void setMinComplexity(int minComplexity) {
         this.minComplexity = minComplexity;
     }
-
-
-    /**
-     * Finds the name of the class/interface/etc. at the root and saves this value to rootName
-     *
-     * @param rootAST root of the tree
-     */
-    @Override
-    public void beginTree(DetailAST rootAST) {
-        rootName = TreeUtils.getRootName(rootAST);
-    }
-
 
     /**
      * Visits an AST node and checks to see if it has the required complexity
@@ -67,7 +51,7 @@ public abstract class AbstractDuplicateCheck extends AbstractCheck {
             }
         }
 
-        checkedAst.put(ast, rootName);
+        checkedAst.put(ast, getFilePath());
     }
 
 

@@ -4,7 +4,6 @@ import com.puppycrawl.tools.checkstyle.api.AbstractCheck;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import edu.byu.cs240.checkstyle.util.PropertyUtils;
-import edu.byu.cs240.checkstyle.util.TreeUtils;
 
 import java.util.*;
 
@@ -22,8 +21,6 @@ public class UnusedMethodWalker extends AbstractCheck {
     private static final Map<String, DetailAST> definedMethods = new HashMap<>();
 
     private static final Map<String, String> methodClasses = new HashMap<>();
-
-    private String rootName;
 
     private final Set<String> allowedAnnotations = new HashSet<>(Set.of("Override"));
 
@@ -117,7 +114,7 @@ public class UnusedMethodWalker extends AbstractCheck {
                     String methodName = astChild.getText();
                     if (excludedMethods.contains(methodName)) return;
                     definedMethods.put(methodName, ast);
-                    methodClasses.put(methodName, rootName);
+                    methodClasses.put(methodName, getFilePath());
                 }
             }
             case TokenTypes.METHOD_CALL -> {
@@ -130,16 +127,4 @@ public class UnusedMethodWalker extends AbstractCheck {
             case TokenTypes.METHOD_REF -> calledMethods.add(ast.getLastChild().getText());
         }
     }
-
-
-    /**
-     * Finds the name of the class/interface/etc. at the root and saves this value to rootName
-     *
-     * @param rootAST root of the tree
-     */
-    @Override
-    public void beginTree(DetailAST rootAST) {
-        rootName = TreeUtils.getRootName(rootAST);
-    }
-
 }
