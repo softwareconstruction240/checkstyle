@@ -127,7 +127,7 @@
         <property name="min" value="3"/>
     </module>
     <module name="FilesPerPackage">
-        <property name="max" value="10"/>
+        <property name="max" value="15"/>
     </module>
 
     <module name="FileLength">
