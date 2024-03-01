@@ -133,7 +133,7 @@
     <module name="FileLength">
         <property name="max" value="500"/>
     </module>
-    <module name="BeforeExecutionExclusionFileFilter">
+    <module name="DuringExecutionExclusionFileFilter">
         <property name="fileNamePattern"
                   value="^.*src[\\/]test.*$"/>
     </module>
