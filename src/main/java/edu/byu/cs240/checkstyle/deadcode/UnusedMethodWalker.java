@@ -3,7 +3,6 @@ package edu.byu.cs240.checkstyle.deadcode;
 import com.puppycrawl.tools.checkstyle.api.AbstractCheck;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
-import edu.byu.cs240.checkstyle.util.PropertyUtils;
 
 import java.util.*;
 
@@ -22,9 +21,9 @@ public class UnusedMethodWalker extends AbstractCheck {
 
     private static final Map<String, String> methodClasses = new HashMap<>();
 
-    private final Set<String> allowedAnnotations = new HashSet<>(Set.of("Override"));
+    private Set<String> allowedAnnotations = new HashSet<>(Set.of("Override"));
 
-    private final Set<String> excludedMethods = new HashSet<>(Set.of("main", "equals", "hashCode", "toString"));
+    private Set<String> excludedMethods = new HashSet<>(Set.of("main", "equals", "hashCode", "toString"));
 
 
     public static Set<String> getCalledMethods() {
@@ -52,20 +51,20 @@ public class UnusedMethodWalker extends AbstractCheck {
     /**
      * Sets a list of annotations for methods that can be excluded
      *
-     * @param parse a comma-delimited list of annotations
+     * @param annotations annotations to exclude marking as unused
      */
-    public void setAllowedAnnotations(String parse) {
-        PropertyUtils.parseString(parse, allowedAnnotations, ",");
+    public void setAllowedAnnotations(String[] annotations) {
+        allowedAnnotations = new HashSet<>(Arrays.asList(annotations));
     }
 
 
     /**
      * Sets a list of method names that can be excluded
      *
-     * @param parse a comma-delimited list of method names
+     * @param methodNames a list of method names to exclude marking as unused
      */
-    public void setExcludedMethods(String parse) {
-        PropertyUtils.parseString(parse, excludedMethods, ",");
+    public void setExcludedMethods(String[] methodNames) {
+        excludedMethods = new HashSet<>(Arrays.asList(methodNames));
     }
 
 

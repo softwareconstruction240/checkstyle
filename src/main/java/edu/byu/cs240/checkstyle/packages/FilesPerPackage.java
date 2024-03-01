@@ -2,13 +2,9 @@ package edu.byu.cs240.checkstyle.packages;
 
 import com.puppycrawl.tools.checkstyle.api.AbstractFileSetCheck;
 import com.puppycrawl.tools.checkstyle.api.FileText;
-import edu.byu.cs240.checkstyle.util.PropertyUtils;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Finds packages that have too many files in them.
@@ -19,7 +15,7 @@ public class FilesPerPackage extends AbstractFileSetCheck {
 
     private final Map<String, Integer> packageSizes = new HashMap<>();
 
-    private final Set<String> excludedFiles = new HashSet<>(Set.of("package-info.java", "module-info.java"));
+    private Set<String> excludedFiles = new HashSet<>(Set.of("package-info.java", "module-info.java"));
 
     private int max = 10;
 
@@ -37,10 +33,10 @@ public class FilesPerPackage extends AbstractFileSetCheck {
     /**
      * Sets a list of file names that can be excluded
      *
-     * @param parse a comma-delimited list of file names
+     * @param excludedFileNames a list of file names to not mark as unused
      */
-    public void setExcludedFiles(String parse) {
-        PropertyUtils.parseString(parse, excludedFiles, ",");
+    public void setExcludedFiles(String[] excludedFileNames) {
+        excludedFiles = new HashSet<>(Arrays.asList(excludedFileNames));
     }
 
 
