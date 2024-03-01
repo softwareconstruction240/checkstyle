@@ -3,6 +3,7 @@ package edu.byu.cs240.checkstyle.deadcode;
 import com.puppycrawl.tools.checkstyle.api.AbstractCheck;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
+import edu.byu.cs240.checkstyle.util.TreeUtils;
 
 import java.util.*;
 
@@ -24,6 +25,14 @@ public class UnusedMethodWalker extends AbstractCheck {
     private Set<String> allowedAnnotations = new HashSet<>(Set.of("Override"));
 
     private Set<String> excludedMethods = new HashSet<>(Set.of("main", "equals", "hashCode", "toString"));
+
+    private boolean allowGetters = true;
+
+    private boolean allowSetters = true;
+
+    private int maxGetterComplexity = 20;
+
+    private int maxSetterComplexity = 20;
 
 
     public static Set<String> getCalledMethods() {
@@ -67,7 +76,41 @@ public class UnusedMethodWalker extends AbstractCheck {
         excludedMethods = new HashSet<>(Arrays.asList(methodNames));
     }
 
+    /**
+     * Sets if getter methods can be excluded
+     *
+     * @param allowGetters true if getters are allowed, false otherwise
+     */
+    public void setAllowGetters(boolean allowGetters) {
+        this.allowGetters = allowGetters;
+    }
 
+    /**
+     * Sets if setter methods can be excluded
+     *
+     * @param allowSetters true if setters are allowed, false otherwise
+     */
+    public void setAllowSetters(boolean allowSetters) {
+        this.allowSetters = allowSetters;
+    }
+
+    /**
+     * Sets the maximum complexity of getter methods
+     *
+     * @param maxGetterComplexity maximum number of tokens to be counted as a getter
+     */
+    public void setMaxGetterComplexity(int maxGetterComplexity) {
+        this.maxGetterComplexity = maxGetterComplexity;
+    }
+
+    /**
+     * Sets the maximum complexity of setter methods
+     *
+     * @param maxSetterComplexity maximum number of tokens to be counted as a setter
+     */
+    public void setMaxSetterComplexity(int maxSetterComplexity) {
+        this.maxSetterComplexity = maxSetterComplexity;
+    }
 
     @Override
     public int[] getDefaultTokens() {
@@ -97,21 +140,17 @@ public class UnusedMethodWalker extends AbstractCheck {
         switch (ast.getType()) {
             case TokenTypes.METHOD_DEF -> {
                 DetailAST modifiers = ast.getFirstChild();
-                DetailAST firstModifier = modifiers.getFirstChild();
-                if (firstModifier != null && firstModifier.getType() == TokenTypes.ANNOTATION) {
-                    DetailAST annotation = firstModifier;
+                DetailAST annotation = modifiers.findFirstToken(TokenTypes.ANNOTATION);
+                if (annotation != null) {
                     while (annotation != null && annotation.getType() == TokenTypes.ANNOTATION) {
                         if (allowedAnnotations.contains(annotation.findFirstToken(TokenTypes.IDENT).getText())) return;
                         annotation = annotation.getNextSibling();
                     }
                 }
-                DetailAST astChild = modifiers;
-                while (astChild != null && astChild.getType() != TokenTypes.IDENT) {
-                    astChild = astChild.getNextSibling();
-                }
+                DetailAST astChild = ast.findFirstToken(TokenTypes.IDENT);
                 if (astChild != null) {
                     String methodName = astChild.getText();
-                    if (excludedMethods.contains(methodName)) return;
+                    if (isMethodExcluded(methodName, ast)) return;
                     definedMethods.put(methodName, ast);
                     methodClasses.put(methodName, getFilePath());
                 }
@@ -125,5 +164,15 @@ public class UnusedMethodWalker extends AbstractCheck {
             }
             case TokenTypes.METHOD_REF -> calledMethods.add(ast.getLastChild().getText());
         }
+    }
+
+    private boolean isMethodExcluded(String methodName, DetailAST methodAST) {
+        if (excludedMethods.contains(methodName)) return true;
+        int methodComplexity = TreeUtils.astComplexity(methodAST);
+        if (allowGetters && methodName.toLowerCase().startsWith("get") && methodComplexity <= maxGetterComplexity)
+            return true;
+        if (allowSetters && methodName.toLowerCase().startsWith("set") && methodComplexity <= maxSetterComplexity)
+            return true;
+        return false;
     }
 }

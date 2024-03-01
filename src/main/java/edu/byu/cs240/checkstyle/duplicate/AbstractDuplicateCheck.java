@@ -2,6 +2,7 @@ package edu.byu.cs240.checkstyle.duplicate;
 
 import com.puppycrawl.tools.checkstyle.api.AbstractCheck;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
+import edu.byu.cs240.checkstyle.util.TreeUtils;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,7 +42,7 @@ public abstract class AbstractDuplicateCheck extends AbstractCheck {
     public void visitToken(DetailAST ast) {
         if (Arrays.stream(getAcceptableTokens()).noneMatch(i -> i == ast.getType())) return;
 
-        int complexity = astComplexity(ast);
+        int complexity = TreeUtils.astComplexity(ast);
         if (complexity < minComplexity) return;
 
         for (DetailAST original : checkedAst.keySet()) {
@@ -97,22 +98,5 @@ public abstract class AbstractDuplicateCheck extends AbstractCheck {
      * @return true if the ast is an exception to the texts being equal
      */
     protected abstract boolean isTextException(DetailAST ast);
-
-
-    /**
-     * Determines the number of nodes that are a descendent of a node.
-     *
-     * @param ast the parent node
-     * @return the number of nodes that are a descendent of ast
-     */
-    protected int astComplexity(DetailAST ast) {
-        int out = 1;
-        DetailAST child = ast.getFirstChild();
-        while (child != null) {
-            out += astComplexity(child);
-            child = child.getNextSibling();
-        }
-        return out;
-    }
 
 }
