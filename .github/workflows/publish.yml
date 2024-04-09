@@ -13,6 +13,27 @@ jobs:
     steps:
       -
         uses: actions/checkout@v4
+      - # Extract version from tag (if release triggered)
+        name: Extract version from tag (if release)
+        id: extract_version
+        if: ${{ github.event.release.tag_name }} != ''
+        run: |
+          version=$(echo "${{ github.event.release.tag_name }}" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
+          if [[ -z "$version" ]]; then
+            echo "::error:: No version found in tag name."
+            exit 1
+          fi
+          echo "::set-output name=jar_version::$version"
+
+      - # Fallback version for manual triggers
+        name: Generate fallback version (if manual trigger)
+        id: fallback_version
+        if: ${{ github.event.release.tag_name }} == ''
+        run: |
+          git fetch --depth=1 origin main
+          latest_commit_sha=$(git rev-parse HEAD)
+          fallback_version=$(echo "latest-${latest_commit_sha:0:5}")
+          echo "::set-output name=jar_version::$fallback_version"
       - 
         uses: actions/setup-java@v4
         with:
@@ -20,6 +41,6 @@ jobs:
           distribution: 'corretto' 
       - 
         name: Publish package
-        run: mvn --batch-mode deploy
+        run: mvn --batch-mode deploy -Dversion=${{ steps.extract_version.outputs.jar_version || steps.fallback_version.outputs.jar_version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
