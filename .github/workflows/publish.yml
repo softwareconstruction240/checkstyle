@@ -34,13 +34,19 @@ jobs:
           latest_commit_sha=$(git rev-parse HEAD)
           fallback_version=$(echo "latest-${latest_commit_sha:0:5}")
           echo "::set-output name=jar_version::$fallback_version"
-      - 
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'corretto' 
-      - 
-        name: Publish package
-        run: mvn --batch-mode deploy -Dversion=${{ steps.extract_version.outputs.jar_version || steps.fallback_version.outputs.jar_version }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      -
+        name: Echo versions
+        run: |
+          echo "Extracted version: ${{ steps.extract_version.outputs.jar_version }}"
+          echo "Fallback version: ${{ steps.fallback_version.outputs.jar_version }}"
+          echo "Deploy command: mvn --batch-mode deploy -Dversion=${{ steps.extract_version.outputs.jar_version || steps.fallback_version.outputs.jar_version }}"
+      # - 
+      #   uses: actions/setup-java@v4
+      #   with:
+      #     java-version: '21'
+      #     distribution: 'corretto' 
+      # - 
+      #   name: Publish package
+      #   run: mvn --batch-mode deploy -Dversion=${{ steps.extract_version.outputs.jar_version || steps.fallback_version.outputs.jar_version }}
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
