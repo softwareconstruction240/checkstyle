@@ -13,6 +13,11 @@ jobs:
     steps:
       -
         uses: actions/checkout@v4
+
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
       - # Extract version from tag (if release triggered)
         name: Extract version from tag (if release)
         id: extract_version
