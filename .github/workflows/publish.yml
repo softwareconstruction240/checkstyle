@@ -30,9 +30,25 @@ jobs:
         id: fallback_version
         if: ${{ github.event.release.tag_name }} == ''
         run: |
-          git fetch --depth=1 origin main
-          latest_commit_sha=$(git rev-parse HEAD)
-          fallback_version=$(echo "latest-${latest_commit_sha:0:5}")
+          # Try to find the latest tag
+          latest_tag=$(git describe --tags --abbrev=0 HEAD)
+          # If no tags exist, use the current commit SHA
+          if [[ -z "$latest_tag" ]]; then
+            echo "Unable to find latest tag"
+            exit 1
+          fi
+          
+          # Extract the version number from the tag (if tag format allows)
+          version=$(echo "$latest_tag" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
+          # If no version found in tag, fallback to "latest"
+          if [[ -z "$version" ]]; then
+            echo "Unable to extract version from tag: $latest_tag" 
+            exit 1
+          fi
+          # Get the first 7 characters of the latest commit SHA
+          latest_commit_sha=$(git rev-parse HEAD:short)
+          # Combine version and SHA for fallback version
+          fallback_version=$(echo "$version-${latest_commit_sha}")
           echo "::set-output name=jar_version::$fallback_version"
       -
         name: Echo versions
