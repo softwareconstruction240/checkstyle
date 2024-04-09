@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'correto' 
+          distribution: 'corretto' 
       - 
         name: Publish package
         run: mvn --batch-mode deploy
