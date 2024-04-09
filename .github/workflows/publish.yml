@@ -20,7 +20,7 @@ jobs:
         run: |
           version=$(echo "${{ github.event.release.tag_name }}" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
           if [[ -z "$version" ]]; then
-            echo "::error:: No version found in tag name."
+            echo "::error:: No version found in tag name: ${{ github.event.release.tag_name }}" 
             exit 1
           fi
           echo "::set-output name=jar_version::$version"
