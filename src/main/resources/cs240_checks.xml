@@ -113,7 +113,7 @@
 
         <module name="UnusedMethodWalker">
             <property name="allowedAnnotations"
-                      value="Override, OnWebSocketMessage, OnWebSocketClose, OnWebSocketConnect, OnWebSocketError, OnWebSocketFrame"/>
+                      value="Override, OnWebSocketMessage, OnWebSocketClose, OnWebSocketConnect, OnWebSocketError, OnWebSocketFrame, Test, BeforeEach, AfterEach, BeforeAll, AfterAll, ParameterizedTest"/>
             <property name="excludedMethods"
                       value="main, equals, hashCode, toString, addPiece, getPiece, resetBoard, getTeamTurn, setTeamTurn, validMoves, makeMove, isInCheck, isInCheckmate, isInStalemate, setBoard, getBoard, getStartPosition, getEndPosition, getPromotionPiece, getTeamColor, getPieceType, pieceMoves, getRow, getColumn, run, stop, createDatabase, getConnection, moveCursorToLocation, getServerMessageType, getAuthString, getCommandType"/>
         </module>
@@ -132,10 +132,6 @@
 
     <module name="FileLength">
         <property name="max" value="500"/>
-    </module>
-    <module name="DuringExecutionExclusionFileFilter">
-        <property name="fileNamePattern"
-                  value="^.*src[\\/]test.*$"/>
     </module>
     <module name="BeforeExecutionExclusionFileFilter">
         <property name="fileNamePattern"
