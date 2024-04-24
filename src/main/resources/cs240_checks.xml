@@ -5,11 +5,11 @@
 
 <module name="Checker">
     <module name="TreeWalker">
-<!--        <module name="PackageName">-->
-<!--            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>-->
-<!--            <message key="name.invalidPattern"-->
-<!--                     value="Package name ''{0}'' must match pattern ''{1}'' (lowercase)."/>-->
-<!--        </module>-->
+        <module name="PackageName">
+            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+            <message key="name.invalidPattern"
+                     value="Package name ''{0}'' must match pattern ''{1}'' (lowercase)."/>
+        </module>
         <module name="TypeName">
             <property name="format" value="^[A-Z][a-zA-Z0-9]*$"/>
             <message key="name.invalidPattern"
@@ -30,11 +30,11 @@
             <message key="name.invalidPattern"
                      value="Static variable name ''{0}'' must match pattern ''{1}'' (lowerCamelCase). (If this was meant to be a constant you may have forgotten to declare it 'final')"/>
         </module>
-<!--        <module name="ConstantName">-->
-<!--            <property name="format" value="^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$"/>-->
-<!--            <message key="name.invalidPattern"-->
-<!--                     value="Constant name ''{0}'' must match pattern ''{1}'' (UPPER_SNAKE_CASE)."/>-->
-<!--        </module>-->
+        <module name="ConstantName">
+            <property name="format" value="^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$"/>
+            <message key="name.invalidPattern"
+                     value="Constant name ''{0}'' must match pattern ''{1}'' (UPPER_SNAKE_CASE)."/>
+        </module>
         <module name="ParameterName">
             <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
             <message key="name.invalidPattern"
