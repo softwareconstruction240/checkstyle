@@ -6,7 +6,7 @@
 
 <checkstyle-packages>
     <package name="edu.byu.cs240.checkstyle"/>
-    <package name="edu.byu.cs240.checkstyle.deadcode"/>
-    <package name="edu.byu.cs240.checkstyle.duplicate"/>
+    <package name="edu.byu.cs240.checkstyle.readability"/>
+    <package name="edu.byu.cs240.checkstyle.decomposition"/>
     <package name="edu.byu.cs240.checkstyle.packages"/>
 </checkstyle-packages>

@@ -1,8 +1,7 @@
-package edu.byu.cs240.checkstyle.deadcode;
+package edu.byu.cs240.checkstyle.readability;
 
 import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
 import edu.byu.cs240.checkstyle.CheckTest;
-import edu.byu.cs240.checkstyle.deadcode.CommentedCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package edu.byu.cs240.checkstyle.duplicate;
+package edu.byu.cs240.checkstyle.decomposition;
 
 import com.puppycrawl.tools.checkstyle.api.AbstractFileSetCheck;
 import com.puppycrawl.tools.checkstyle.api.FileText;

@@ -1,4 +1,4 @@
-package edu.byu.cs240.checkstyle.deadcode;
+package edu.byu.cs240.checkstyle.readability;
 
 import com.puppycrawl.tools.checkstyle.api.AbstractFileSetCheck;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
