@@ -5,6 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>edu.byu.cs240</groupId>
 	<artifactId>checkstyle</artifactId>
+	<version>1.0.5</version>
 	<name>C S 240 Checkstyle Checks</name>
 	<properties>
 		<maven.compiler.source>21</maven.compiler.source>
@@ -15,12 +16,12 @@
 		<dependency>
 			<groupId>com.puppycrawl.tools</groupId>
 			<artifactId>checkstyle</artifactId>
-			<version>10.9.1</version>
+			<version>10.14.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
-			<version>5.9.2</version>
+			<version>5.10.2</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -57,11 +58,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<distributionManagement>
-		<repository>
-			<id>github</id>
-			<name>GitHub Packages</name>
-			<url>https://maven.pkg.github.com/softwareconstruction240/checkstyle</url>
-		</repository>
-	</distributionManagement>
 </project>

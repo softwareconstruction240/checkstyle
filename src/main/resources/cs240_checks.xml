@@ -92,6 +92,13 @@
         </module>
 
         <module name="NoCodeInFile"/>
+
+        <module name="NestingDepth">
+            <property name="max" value="4"/>
+        </module>
+
+        <module name="NeedBraces"/>
+
         <module name="TodoComment">
             <property name="format" value="(TODO)|(FIXME)"/>
             <property name="severity" value="warning"/>
@@ -133,6 +140,11 @@
     <module name="FileLength">
         <property name="max" value="500"/>
     </module>
+
+    <module name="LineLength">
+        <property name="max" value="150"/>
+    </module>
+
     <module name="BeforeExecutionExclusionFileFilter">
         <property name="fileNamePattern"
                   value="^[^.]+$|\.(?!(java)$)([^.]+$)"/>
