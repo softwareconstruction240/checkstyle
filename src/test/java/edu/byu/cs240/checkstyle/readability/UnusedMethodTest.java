@@ -26,6 +26,12 @@ public class UnusedMethodTest extends CheckTest {
         testFiles(0, fileName);
     }
 
+    @Test
+    @DisplayName("Should find no errors in code that has otherwise unused methods in allowed annotations")
+    public void should_FindNoErrors_when_UnusedInAllowedAnnotation() throws CheckstyleException {
+        String fileName = "testInputs/unusedMethod/should_FindNoErrors_when_UnusedInAllowedAnnotation.java";
+        testFiles(0, fileName);
+    }
 
     @Test
     @DisplayName("Should find errors in code that has unused methods")
@@ -49,7 +55,10 @@ public class UnusedMethodTest extends CheckTest {
 
     @Override
     protected Map<String, String> getCheckProperties(Class<?> clazz) {
-        if (clazz == UnusedMethodWalker.class) return Map.of("allowedAnnotations", "Override");
+        if (clazz == UnusedMethodWalker.class) {
+            return Map.of("allowedAnnotations", "Override",
+                    "methodParameterAnnotations", "FooBar");
+        }
         else return Map.of();
     }
 

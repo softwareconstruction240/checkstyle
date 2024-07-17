@@ -16,23 +16,25 @@ import java.util.*;
  */
 public class UnusedMethodWalker extends AbstractCheck {
 
-    private static final Set<String> calledMethods = new HashSet<>();
+    private static Set<String> calledMethods = new HashSet<>();
 
-    private static final Map<String, DetailAST> definedMethods = new HashMap<>();
+    private static Map<String, DetailAST> definedMethods = new HashMap<>();
 
-    private static final Map<String, String> methodClasses = new HashMap<>();
+    private static Map<String, String> methodClasses = new HashMap<>();
 
     private Set<String> allowedAnnotations = new HashSet<>(Set.of("Override"));
 
     private Set<String> excludedMethods = new HashSet<>(Set.of("main", "equals", "hashCode", "toString"));
 
+    private Set<String> methodParameterAnnotations = new HashSet<>();
+
     private boolean allowGetters = true;
 
     private boolean allowSetters = true;
 
-    private int maxGetterComplexity = 20;
+    private int maxGetterComplexity = 25;
 
-    private int maxSetterComplexity = 20;
+    private int maxSetterComplexity = 25;
 
 
     public static Set<String> getCalledMethods() {
@@ -51,9 +53,9 @@ public class UnusedMethodWalker extends AbstractCheck {
 
 
     public static void clearData() {
-        calledMethods.clear();
-        definedMethods.clear();
-        methodClasses.clear();
+        calledMethods = new HashSet<>();
+        definedMethods = new HashMap<>();
+        methodClasses = new HashMap<>();
     }
 
 
@@ -74,6 +76,15 @@ public class UnusedMethodWalker extends AbstractCheck {
      */
     public void setExcludedMethods(String[] methodNames) {
         excludedMethods = new HashSet<>(Arrays.asList(methodNames));
+    }
+
+    /**
+     * Sets a list of annotation names that have method names as parameters to not mark as unused
+     *
+     * @param annotationNames a list of annotation names that have method names as parameters to not mark as unused
+     */
+    public void setMethodParameterAnnotations(String[] annotationNames) {
+        methodParameterAnnotations = new HashSet<>(Arrays.asList(annotationNames));
     }
 
     /**
@@ -126,7 +137,7 @@ public class UnusedMethodWalker extends AbstractCheck {
 
     @Override
     public int[] getRequiredTokens() {
-        return new int[]{TokenTypes.METHOD_DEF, TokenTypes.METHOD_CALL, TokenTypes.METHOD_REF};
+        return new int[]{TokenTypes.METHOD_DEF, TokenTypes.METHOD_CALL, TokenTypes.METHOD_REF, TokenTypes.ANNOTATION};
     }
 
 
@@ -138,41 +149,78 @@ public class UnusedMethodWalker extends AbstractCheck {
     @Override
     public void visitToken(DetailAST ast) {
         switch (ast.getType()) {
-            case TokenTypes.METHOD_DEF -> {
-                DetailAST modifiers = ast.getFirstChild();
-                DetailAST annotation = modifiers.findFirstToken(TokenTypes.ANNOTATION);
-                if (annotation != null) {
-                    while (annotation != null && annotation.getType() == TokenTypes.ANNOTATION) {
-                        if (allowedAnnotations.contains(annotation.findFirstToken(TokenTypes.IDENT).getText())) return;
-                        annotation = annotation.getNextSibling();
-                    }
-                }
-                DetailAST astChild = ast.findFirstToken(TokenTypes.IDENT);
-                if (astChild != null) {
-                    String methodName = astChild.getText();
-                    if (isMethodExcluded(methodName, ast)) return;
-                    definedMethods.put(methodName, ast);
-                    methodClasses.put(methodName, getFilePath());
-                }
+            case TokenTypes.METHOD_DEF -> visitMethodDefinition(ast);
+            case TokenTypes.METHOD_CALL -> visitMethodCall(ast);
+            case TokenTypes.METHOD_REF -> visitMethodReference(ast);
+            case TokenTypes.ANNOTATION -> visitAnnotation(ast);
+        }
+    }
+
+    private void visitMethodDefinition(DetailAST ast) {
+        DetailAST modifiers = ast.getFirstChild();
+        DetailAST annotation = modifiers.findFirstToken(TokenTypes.ANNOTATION);
+        if (annotation != null) {
+            while (annotation != null && annotation.getType() == TokenTypes.ANNOTATION) {
+                if (allowedAnnotations.contains(annotation.findFirstToken(TokenTypes.IDENT).getText())) return;
+                annotation = annotation.getNextSibling();
             }
-            case TokenTypes.METHOD_CALL -> {
-                DetailAST methodCall = ast.getFirstChild();
-                while (methodCall != null && methodCall.getType() != TokenTypes.IDENT) {
-                    methodCall = methodCall.getLastChild();
-                }
-                if (methodCall != null) calledMethods.add(methodCall.getText());
-            }
-            case TokenTypes.METHOD_REF -> calledMethods.add(ast.getLastChild().getText());
+        }
+        DetailAST astChild = ast.findFirstToken(TokenTypes.IDENT);
+        if (astChild != null) {
+            String methodName = astChild.getText();
+            if (isMethodExcluded(methodName, ast)) return;
+            definedMethods.put(methodName, ast);
+            methodClasses.put(methodName, getFilePath());
         }
     }
 
     private boolean isMethodExcluded(String methodName, DetailAST methodAST) {
         if (excludedMethods.contains(methodName)) return true;
         int methodComplexity = TreeUtils.astComplexity(methodAST);
-        if (allowGetters && methodName.toLowerCase().startsWith("get") && methodComplexity <= maxGetterComplexity)
+        if (allowGetters &&
+                (methodName.toLowerCase().startsWith("get") || methodName.toLowerCase().startsWith("is")) &&
+                methodComplexity <= maxGetterComplexity) {
             return true;
-        if (allowSetters && methodName.toLowerCase().startsWith("set") && methodComplexity <= maxSetterComplexity)
+        }
+        if (allowSetters && methodName.toLowerCase().startsWith("set") &&
+                methodComplexity <= maxSetterComplexity) {
             return true;
+        }
         return false;
+    }
+
+    private static void visitMethodCall(DetailAST ast) {
+        DetailAST methodCall = ast.getFirstChild();
+        while (methodCall != null && methodCall.getType() != TokenTypes.IDENT) {
+            methodCall = methodCall.getLastChild();
+        }
+        if (methodCall != null) {
+            calledMethods.add(methodCall.getText());
+        }
+    }
+
+    private static void visitMethodReference(DetailAST ast) {
+        calledMethods.add(ast.getLastChild().getText());
+    }
+
+    private void visitAnnotation(DetailAST ast) {
+        String annotationName = ast.getFirstChild().getNextSibling().getText();
+        if(!methodParameterAnnotations.contains(annotationName)) {
+            return;
+        }
+        DetailAST parameter = ast.getFirstChild().getNextSibling().getNextSibling();
+        while (parameter != null) {
+            DetailAST parameterAst = null;
+            if(parameter.getType() == TokenTypes.EXPR) {
+                parameterAst = parameter;
+            }
+            else if(parameter.getLastChild() != null && parameter.getLastChild().getType() == TokenTypes.EXPR) {
+                parameterAst = parameter.getLastChild();
+            }
+            if(parameterAst != null && parameterAst.getFirstChild().getType() == TokenTypes.STRING_LITERAL) {
+                calledMethods.add(parameterAst.getFirstChild().getText().replace("\"", ""));
+            }
+            parameter = parameter.getNextSibling();
+        }
     }
 }

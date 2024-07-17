@@ -4,7 +4,7 @@
   <groupId>edu.byu.cs240</groupId>
   <artifactId>checkstyle</artifactId>
   <name>C S 240 Checkstyle Checks</name>
-  <version>1.0</version>
+  <version>1.0.6</version>
   <build>
     <plugins>
       <plugin>
