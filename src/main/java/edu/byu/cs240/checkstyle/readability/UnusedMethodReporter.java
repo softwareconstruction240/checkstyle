@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static edu.byu.cs240.checkstyle.readability.UnusedMethodWalker.Method;
+
 /**
  * Reports unused methods. This class is useless unless UnusedMethodWalker is also used.
  * Two separate classes are necessary because children of TreeWalker are not notified when all files are finished,
@@ -34,14 +36,15 @@ public class UnusedMethodReporter extends AbstractFileSetCheck {
     @Override
     public void finishProcessing() {
         Set<String> calledMethods = UnusedMethodWalker.getCalledMethods();
-        Map<String, DetailAST> definedMethods = new HashMap<>(UnusedMethodWalker.getDefinedMethods());
-        Map<String, String> methodClasses = UnusedMethodWalker.getMethodClasses();
+        Map<String, Set<Method>> definedMethods = new HashMap<>(UnusedMethodWalker.getDefinedMethods());
 
         calledMethods.forEach(definedMethods::remove);
 
         definedMethods.forEach((key, value) -> {
-            log(value.getLineNo(), "Unused method " + key);
-            fireErrors(methodClasses.get(key));
+            for (Method method : value) {
+                log(method.ast().getLineNo(), "Unused method " + key);
+                fireErrors(method.filePath());
+            }
         });
     }
 

@@ -40,6 +40,13 @@ public class UnusedMethodTest extends CheckTest {
         testFiles(2, fileName);
     }
 
+    @Test
+    @DisplayName("Should find errors in code that has duplicate unused methods")
+    public void should_FindErrors_when_DuplicateUnusedMethods() throws CheckstyleException {
+        String fileName = "testInputs/unusedMethod/should_FindErrors_when_DuplicateUnusedMethods.java";
+        testFiles(4, fileName);
+    }
+
 
     @Override
     protected Set<Class<?>> getCheckClasses() {

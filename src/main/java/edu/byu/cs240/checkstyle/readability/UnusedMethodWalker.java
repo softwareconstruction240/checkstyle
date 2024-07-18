@@ -5,6 +5,7 @@ import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import edu.byu.cs240.checkstyle.util.TreeUtils;
 
+import java.lang.invoke.MethodHandle;
 import java.util.*;
 
 /**
@@ -18,9 +19,7 @@ public class UnusedMethodWalker extends AbstractCheck {
 
     private static Set<String> calledMethods = new HashSet<>();
 
-    private static Map<String, DetailAST> definedMethods = new HashMap<>();
-
-    private static Map<String, String> methodClasses = new HashMap<>();
+    private static Map<String, Set<Method>> definedMethods = new HashMap<>();
 
     private Set<String> allowedAnnotations = new HashSet<>(Set.of("Override"));
 
@@ -37,25 +36,17 @@ public class UnusedMethodWalker extends AbstractCheck {
     private int maxSetterComplexity = 25;
 
 
-    public static Set<String> getCalledMethods() {
+    static Set<String> getCalledMethods() {
         return Collections.unmodifiableSet(calledMethods);
     }
 
-
-    public static Map<String, DetailAST> getDefinedMethods() {
+    static Map<String, Set<Method>> getDefinedMethods() {
         return Collections.unmodifiableMap(definedMethods);
     }
-
-
-    public static Map<String, String> getMethodClasses() {
-        return Collections.unmodifiableMap(methodClasses);
-    }
-
 
     public static void clearData() {
         calledMethods = new HashSet<>();
         definedMethods = new HashMap<>();
-        methodClasses = new HashMap<>();
     }
 
 
@@ -174,8 +165,8 @@ public class UnusedMethodWalker extends AbstractCheck {
             if (isMethodExcluded(methodName, ast)) {
                 return;
             }
-            definedMethods.put(methodName, ast);
-            methodClasses.put(methodName, getFilePath());
+            definedMethods.putIfAbsent(methodName, new HashSet<>());
+            definedMethods.get(methodName).add(new Method(ast, getFilePath()));
         }
     }
 
@@ -230,4 +221,6 @@ public class UnusedMethodWalker extends AbstractCheck {
             parameter = parameter.getNextSibling();
         }
     }
+
+    record Method(DetailAST ast, String filePath) {}
 }
