@@ -38,8 +38,7 @@ public class DuplicateLines extends AbstractFileSetCheck {
         lines.replaceAll(String::trim);
         List<Long> hashedLines = new ArrayList<>();
         for (String line : lines) {
-            if (isIgnored(line)) hashedLines.add(IGNORE);
-            else hashedLines.add((long) line.hashCode());
+            hashedLines.add(isIgnored(line) ? IGNORE : (long) line.hashCode());
         }
         List<Long> hashedBlocks = hashBlocks(hashedLines);
         FileStorage added = new FileStorage(file, fileText, lines, hashedLines, hashedBlocks);
@@ -71,7 +70,9 @@ public class DuplicateLines extends AbstractFileSetCheck {
      */
     private List<Long> hashBlocks(List<Long> hashedLines) {
         List<Long> hashes = new ArrayList<>();
-        if (hashedLines.size() < min) return hashes;
+        if (hashedLines.size() < min) {
+            return hashes;
+        }
 
         for (int i = 0; i <= hashedLines.size() - min; i++) {
             long sum = 0;
@@ -99,13 +100,17 @@ public class DuplicateLines extends AbstractFileSetCheck {
         List<Long> compareHashedBlocks = compare.hashedBlocks();
         for (int i = 0; i < originalHashedBlocks.size(); i++) {
             for (int j = 0; j < compareHashedBlocks.size(); j++) {
-                if (original == compare && Math.abs(i - j) < min) continue;
-                if (originalHashedBlocks.get(i) == IGNORE) continue;
+                if (original == compare && Math.abs(i - j) < min ||
+                        originalHashedBlocks.get(i) == IGNORE) {
+                    continue;
+                }
                 if (Objects.equals(originalHashedBlocks.get(i), compareHashedBlocks.get(j))) {
                     int searched = verifyDuplicates(original, compare, i, j);
                     i += searched;
                     j += searched;
-                    if (i >= originalHashedBlocks.size()) break;
+                    if (i >= originalHashedBlocks.size()) {
+                        break;
+                    }
                 }
             }
         }
@@ -128,14 +133,18 @@ public class DuplicateLines extends AbstractFileSetCheck {
         int duplicatedLines = 0;
         while (origStart + i < originalLines.size() && compStart + i < compareLines.size() &&
                 originalLines.get(origStart + i).equals(compareLines.get(compStart + i))) {
-            if (isIgnored(originalLines.get(origStart + i))) break;
-            if (!originalLines.get(origStart + i).isBlank()) duplicatedLines++;
+            if (isIgnored(originalLines.get(origStart + i))) {
+                break;
+            }
+            if (!originalLines.get(origStart + i).isBlank()) {
+                duplicatedLines++;
+            }
             i++;
         }
         if (duplicatedLines >= min) {
             log(compStart + 1,
                     String.format("Duplicated %d lines from %s:%d", i, original.file().toPath(), origStart + 1));
-            fireErrors(compare.file().toPath().toString());
+            fireErrors(compare.file().getAbsolutePath());
             for (int j = 0; j <= i - min; j++) {
                 compare.hashedBlocks().set(compStart + j, IGNORE);
             }

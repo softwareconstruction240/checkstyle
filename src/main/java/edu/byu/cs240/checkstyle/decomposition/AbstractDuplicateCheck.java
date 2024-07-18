@@ -40,10 +40,14 @@ public abstract class AbstractDuplicateCheck extends AbstractCheck {
      */
     @Override
     public void visitToken(DetailAST ast) {
-        if (Arrays.stream(getAcceptableTokens()).noneMatch(i -> i == ast.getType())) return;
+        if (Arrays.stream(getAcceptableTokens()).noneMatch(i -> i == ast.getType())) {
+            return;
+        }
 
         int complexity = TreeUtils.astComplexity(ast);
-        if (complexity < minComplexity) return;
+        if (complexity < minComplexity) {
+            return;
+        }
 
         for (DetailAST original : checkedAst.keySet()) {
             if (astEquals(original, ast)) {
@@ -73,16 +77,19 @@ public abstract class AbstractDuplicateCheck extends AbstractCheck {
      * @return true if original and compare are effectively equal, false otherwise
      */
     protected boolean astEquals(DetailAST original, DetailAST compare) {
-        if (original.getType() != compare.getType()) return false;
-        if (original.getChildCount() != compare.getChildCount()) return false;
-
-        if (!original.getText().equals(compare.getText()) && !isTextException(original)) return false;
+        if (original.getType() != compare.getType() ||
+                original.getChildCount() != compare.getChildCount() ||
+                (!original.getText().equals(compare.getText()) && !isTextException(original))) {
+            return false;
+        }
 
         DetailAST originalChild = original.getFirstChild();
         DetailAST compareChild = compare.getFirstChild();
 
         while (originalChild != null && compareChild != null) {
-            if (!astEquals(originalChild, compareChild)) return false;
+            if (!astEquals(originalChild, compareChild)) {
+                return false;
+            }
             originalChild = originalChild.getNextSibling();
             compareChild = compareChild.getNextSibling();
         }

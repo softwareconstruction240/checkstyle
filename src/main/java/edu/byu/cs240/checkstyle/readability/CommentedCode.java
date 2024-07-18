@@ -47,27 +47,37 @@ public class CommentedCode extends AbstractFileSetCheck {
         int startLine = -1;
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i).trim();
-            if (line.isBlank()) continue;
+            if (line.isBlank()) {
+                continue;
+            }
             if (!line.startsWith("//") && !line.contains("/*") && !inBlockComment && line.contains("\"\"\"")) {
                 inTextBlock = !inTextBlock;
             }
-            if(inTextBlock) continue;
-            if (!line.startsWith("//") && line.contains("/*") && !line.contains("/**")) inBlockComment = true;
-            if (line.contains("*/")) inBlockComment = false;
+            if(inTextBlock) {
+                continue;
+            }
+            if (!line.startsWith("//") && line.contains("/*") && !line.contains("/**")) {
+                inBlockComment = true;
+            }
+            if (line.contains("*/")) {
+                inBlockComment = false;
+            }
             if ((inBlockComment || line.startsWith("//")) &&
                     CODE_LINE_END_CHARS.contains(line.charAt(line.length() - 1))) {
-                if (numLines == 0) startLine = i;
+                if (numLines == 0) {
+                    startLine = i;
+                }
                 numLines++;
             } else {
                 if (numLines >= min) {
-                    logViolation(file.getPath(), numLines, startLine);
+                    logViolation(file.getAbsolutePath(), numLines, startLine);
                 }
                 startLine = -1;
                 numLines = 0;
             }
         }
         if (numLines >= min) {
-            logViolation(file.getPath(), numLines, startLine);
+            logViolation(file.getAbsolutePath(), numLines, startLine);
         }
     }
 

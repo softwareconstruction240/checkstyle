@@ -161,21 +161,28 @@ public class UnusedMethodWalker extends AbstractCheck {
         DetailAST annotation = modifiers.findFirstToken(TokenTypes.ANNOTATION);
         if (annotation != null) {
             while (annotation != null && annotation.getType() == TokenTypes.ANNOTATION) {
-                if (allowedAnnotations.contains(annotation.findFirstToken(TokenTypes.IDENT).getText())) return;
+                String annotationName = annotation.findFirstToken(TokenTypes.IDENT).getText();
+                if (allowedAnnotations.contains(annotationName)) {
+                    return;
+                }
                 annotation = annotation.getNextSibling();
             }
         }
         DetailAST astChild = ast.findFirstToken(TokenTypes.IDENT);
         if (astChild != null) {
             String methodName = astChild.getText();
-            if (isMethodExcluded(methodName, ast)) return;
+            if (isMethodExcluded(methodName, ast)) {
+                return;
+            }
             definedMethods.put(methodName, ast);
             methodClasses.put(methodName, getFilePath());
         }
     }
 
     private boolean isMethodExcluded(String methodName, DetailAST methodAST) {
-        if (excludedMethods.contains(methodName)) return true;
+        if (excludedMethods.contains(methodName)) {
+            return true;
+        }
         int methodComplexity = TreeUtils.astComplexity(methodAST);
         if (allowGetters &&
                 (methodName.toLowerCase().startsWith("get") || methodName.toLowerCase().startsWith("is")) &&

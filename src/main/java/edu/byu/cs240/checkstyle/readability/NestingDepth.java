@@ -47,7 +47,9 @@ public class NestingDepth extends AbstractCheck {
 
     @Override
     public void visitToken(DetailAST ast) {
-        if(isExcluded(ast)) return;
+        if (isExcluded(ast)) {
+            return;
+        }
         ++depth;
         if (depth > max) {
             String message = "Code is too deeply nested. Current depth: %s (max is %s)".formatted(depth, max);
@@ -57,15 +59,34 @@ public class NestingDepth extends AbstractCheck {
 
     @Override
     public void leaveToken(DetailAST ast) {
-        if(!isExcluded(ast)) --depth;
+        if(!isExcluded(ast)) {
+            --depth;
+        }
     }
 
     private boolean isExcluded(DetailAST ast) {
-        return (ast.getType() == TokenTypes.LITERAL_IF && ast.getParent().getType() == TokenTypes.LITERAL_ELSE) || //else if
-                (ast.getType() == TokenTypes.SLIST && SLIST_EXCLUDED_PARENTS.contains(ast.getParent().getType())) ||
-                (ast.getType() == TokenTypes.SLIST && ast.getParent().getType() == TokenTypes.LITERAL_ELSE &&
-                        getChildren(ast.getParent().getParent()).stream().noneMatch(ast1 -> ast1.getType() == TokenTypes.SLIST)) ||
-                (ast.getType() != TokenTypes.SLIST && getChildren(ast).stream().anyMatch(ast1 -> ast1.getType() == TokenTypes.SLIST)); //block with curly braces
+        return isElseIf(ast) || isSListExcluded(ast) || isElseWithBracesOfIfWithoutBraces(ast) || isBlockWithBraces(ast);
+    }
+
+    private boolean isElseIf(DetailAST ast) {
+        return ast.getType() == TokenTypes.LITERAL_IF && ast.getParent().getType() == TokenTypes.LITERAL_ELSE;
+    }
+
+    private boolean isSListExcluded(DetailAST ast) {
+        return ast.getType() == TokenTypes.SLIST && SLIST_EXCLUDED_PARENTS.contains(ast.getParent().getType());
+    }
+
+    private boolean isElseWithBracesOfIfWithoutBraces(DetailAST ast) {
+        return ast.getType() == TokenTypes.SLIST && ast.getParent().getType() == TokenTypes.LITERAL_ELSE &&
+                !hasSListChild(ast.getParent().getParent());
+    }
+
+    private boolean isBlockWithBraces(DetailAST ast) {
+        return ast.getType() != TokenTypes.SLIST && hasSListChild(ast);
+    }
+
+    private boolean hasSListChild(DetailAST ast) {
+        return getChildren(ast).stream().anyMatch(ast1 -> ast1.getType() == TokenTypes.SLIST);
     }
 
     private List<DetailAST> getChildren(DetailAST ast) {

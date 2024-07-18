@@ -48,10 +48,14 @@ public class FilesPerPackage extends AbstractFileSetCheck {
      */
     @Override
     protected void processFiltered(File file, FileText fileText) {
-        if (excludedFiles.contains(file.getName())) return;
-        String path = file.getPath();
+        if (excludedFiles.contains(file.getName())) {
+            return;
+        }
+        String path = file.getAbsolutePath();
         int fileStart = path.lastIndexOf('/');
-        if (fileStart == -1) fileStart = path.lastIndexOf('\\');
+        if (fileStart == -1) {
+            fileStart = path.lastIndexOf('\\');
+        }
         if (fileStart != -1) {
             String packagePath = path.substring(0, fileStart);
             if (packageSizes.containsKey(packagePath)) {
