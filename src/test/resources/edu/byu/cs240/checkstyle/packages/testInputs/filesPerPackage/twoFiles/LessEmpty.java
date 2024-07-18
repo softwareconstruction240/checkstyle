@@ -1,4 +1,4 @@
-public class LessEmpty() {
+public class LessEmpty {
     void hi() {
 
     }
