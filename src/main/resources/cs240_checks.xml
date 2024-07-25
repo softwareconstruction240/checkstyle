@@ -90,6 +90,10 @@
             <message key="name.invalidPattern"
                      value="Interface type name ''{0}'' must match pattern ''{1}'' (A single letter, like 'T')."/>
         </module>
+        <module name="SuppressWarnings">
+            <property name="format" value="^unchecked$|^unused$"/>
+            <property name="tokens" value="METHOD_DEF"/>
+        </module>    
 
         <module name="NoCodeInFile"/>
 
