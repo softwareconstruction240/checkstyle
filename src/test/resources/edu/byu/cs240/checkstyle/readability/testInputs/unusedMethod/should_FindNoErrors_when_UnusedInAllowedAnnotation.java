@@ -1,5 +1,5 @@
 class should_FindNoErrors_when_UnusedInAllowedAnnotation {
-    @FooBar("hello")
+    @foo.bar.FooBar("hello")
     public void hi() {
         System.out.println("hi");
     }

@@ -152,7 +152,7 @@ public class UnusedMethodWalker extends AbstractCheck {
         DetailAST annotation = modifiers.findFirstToken(TokenTypes.ANNOTATION);
         if (annotation != null) {
             while (annotation != null && annotation.getType() == TokenTypes.ANNOTATION) {
-                String annotationName = annotation.findFirstToken(TokenTypes.IDENT).getText();
+                String annotationName = findAnnotationName(annotation);
                 if (allowedAnnotations.contains(annotationName)) {
                     return;
                 }
@@ -202,7 +202,7 @@ public class UnusedMethodWalker extends AbstractCheck {
     }
 
     private void visitAnnotation(DetailAST ast) {
-        String annotationName = ast.getFirstChild().getNextSibling().getText();
+        String annotationName = findAnnotationName(ast);
         if(!methodParameterAnnotations.contains(annotationName)) {
             return;
         }
@@ -219,6 +219,16 @@ public class UnusedMethodWalker extends AbstractCheck {
                 calledMethods.add(parameterAst.getFirstChild().getText().replace("\"", ""));
             }
             parameter = parameter.getNextSibling();
+        }
+    }
+
+    private String findAnnotationName(DetailAST annotation) {
+        DetailAST root = annotation.getFirstChild().getNextSibling();
+        if(root.getType() == TokenTypes.IDENT) {
+            return root.getText();
+        }
+        else {
+            return root.getFirstChild().getNextSibling().getText();
         }
     }
 
