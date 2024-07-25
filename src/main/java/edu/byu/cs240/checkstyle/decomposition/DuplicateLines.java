@@ -142,8 +142,8 @@ public class DuplicateLines extends AbstractFileSetCheck {
             i++;
         }
         if (duplicatedLines >= min) {
-            log(compStart + 1,
-                    String.format("Duplicated %d lines from %s:%d", i, original.file().toPath(), origStart + 1));
+            String origFilePath = original.file().getAbsolutePath();
+            log(compStart + 1, String.format("Duplicated %d lines from %s:%d", i, origFilePath, origStart + 1));
             fireErrors(compare.file().getAbsolutePath());
             for (int j = 0; j <= i - min; j++) {
                 compare.hashedBlocks().set(compStart + j, IGNORE);
