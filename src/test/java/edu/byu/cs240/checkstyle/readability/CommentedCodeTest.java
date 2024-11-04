@@ -54,6 +54,14 @@ class CommentedCodeTest extends CheckTest {
 
 
     @Test
+    @DisplayName("Should find no errors in code that has '/*' or related character sequences in a string")
+    public void should_FindNoErrors_when_commentInString() throws CheckstyleException {
+        String fileName = "testInputs/commentedCode/should_FindNoErrors_when_commentInString.java";
+        testFiles(0, fileName);
+    }
+
+
+    @Test
     @DisplayName("Should find errors in code that has code comments")
     public void should_FindErrors_when_CodeComments() throws CheckstyleException {
         String fileName = "testInputs/commentedCode/should_FindErrors_when_CodeComments.java";
