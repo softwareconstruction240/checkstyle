@@ -19,7 +19,7 @@ class CommentedCodeTest extends CheckTest {
 
     @Override
     protected boolean isTreeWalkerDependent(Class<?> clazz) {
-        return false;
+        return true;
     }
 
 

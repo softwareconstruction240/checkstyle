@@ -1,11 +1,9 @@
 package edu.byu.cs240.checkstyle.readability;
 
-import com.puppycrawl.tools.checkstyle.api.AbstractFileSetCheck;
-import com.puppycrawl.tools.checkstyle.api.FileText;
+import com.puppycrawl.tools.checkstyle.api.AbstractCheck;
+import com.puppycrawl.tools.checkstyle.api.DetailAST;
+import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -13,12 +11,15 @@ import java.util.Set;
  *
  * @author Michael Davenport
  */
-public class CommentedCode extends AbstractFileSetCheck {
+public class CommentedCode extends AbstractCheck {
 
     private static final Set<Character> CODE_LINE_END_CHARS = Set.of(';', ',', '{', '}', '(', ')', '/');
 
     private int min = 5;
 
+    private int firstGroupCommentedLine;
+
+    private int numSuccessiveLines;
 
     /**
      * Sets the minimum number of successive lines of commented code before reporting
@@ -29,69 +30,80 @@ public class CommentedCode extends AbstractFileSetCheck {
         this.min = min;
     }
 
-
-    /**
-     * Finds and reports commented out code
-     *
-     * @param file     file to check
-     * @param fileText contents of file
-     */
     @Override
-    protected void processFiltered(File file, FileText fileText) {
-        List<String> lines = Arrays.asList(fileText.toLinesArray());
-        lines.replaceAll(String::trim);
+    public int[] getDefaultTokens() {
+        return getRequiredTokens();
+    }
 
-        boolean inBlockComment = false;
-        boolean inTextBlock = false;
-        int numLines = 0;
-        int startLine = -1;
-        for (int i = 0; i < lines.size(); i++) {
-            String line = lines.get(i).trim();
-            if (line.isBlank()) {
+    @Override
+    public int[] getAcceptableTokens() {
+        return getRequiredTokens();
+    }
+
+    @Override
+    public int[] getRequiredTokens() {
+        return new int[]{TokenTypes.COMMENT_CONTENT};
+    }
+
+    @Override
+    public boolean isCommentNodesRequired() {
+        return true;
+    }
+
+    @Override
+    public void beginTree(DetailAST rootAST) {
+        resetCounters();
+    }
+
+    @Override
+    public void finishTree(DetailAST rootAST) {
+        checkLines();
+    }
+
+    @Override
+    public void visitToken(DetailAST ast) {
+        String[] split = ast.getText().split("\n");
+        int lineNum = ast.getLineNo();
+        for(int i = 0; i < split.length; i++) {
+            String line = split[i].trim();
+
+            if(line.isBlank()) {
                 continue;
             }
-            if (!line.startsWith("//") && !line.contains("/*") && !inBlockComment && line.contains("\"\"\"")) {
-                inTextBlock = !inTextBlock;
+
+            if(CODE_LINE_END_CHARS.contains(line.charAt(line.length() - 1))) {
+                handleCommentedLine(lineNum + i);
             }
-            if(inTextBlock) {
-                continue;
+            else {
+                checkLines();
+                resetCounters();
             }
-            if (!line.startsWith("//") && line.contains("/*") && !line.contains("/**")) {
-                inBlockComment = true;
-            }
-            if (line.contains("*/")) {
-                inBlockComment = false;
-            }
-            if ((inBlockComment || line.startsWith("//")) &&
-                    CODE_LINE_END_CHARS.contains(line.charAt(line.length() - 1))) {
-                if (numLines == 0) {
-                    startLine = i;
-                }
-                numLines++;
-            } else {
-                if (numLines >= min) {
-                    logViolation(file.getAbsolutePath(), numLines, startLine);
-                }
-                startLine = -1;
-                numLines = 0;
-            }
-        }
-        if (numLines >= min) {
-            logViolation(file.getAbsolutePath(), numLines, startLine);
         }
     }
 
+    private void handleCommentedLine(int lineNum) {
+        if(firstGroupCommentedLine + numSuccessiveLines < lineNum) {
+            checkLines();
+            resetCounters();
+        }
 
-    /**
-     * Reports an instance of commented out code
-     *
-     * @param path      file path where the commented code is
-     * @param numLines  number of lines of code commented out
-     * @param startLine line number of start of
-     */
-    private void logViolation(String path, int numLines, int startLine) {
-        log(startLine, String.format("%d lines of commented out code", numLines));
-        fireErrors(path);
+        if(numSuccessiveLines == 0) {
+            firstGroupCommentedLine = lineNum;
+            numSuccessiveLines = 1;
+        }
+        else {
+            numSuccessiveLines++;
+        }
     }
 
+    private void resetCounters() {
+        firstGroupCommentedLine = Integer.MIN_VALUE;
+        numSuccessiveLines = 0;
+    }
+
+    private void checkLines() {
+        if(numSuccessiveLines >= min) {
+            log(firstGroupCommentedLine, String.format("%d lines of commented out code", numSuccessiveLines));
+        }
+    }
 }

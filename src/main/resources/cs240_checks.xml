@@ -129,15 +129,18 @@
             <property name="maxSetterComplexity" value="30"/>
             <property name="methodParameterAnnotations" value="MethodSource"/>
         </module>
+
+        <module name="CommentedCode">
+            <property name="min" value="3"/>
+        </module>
+
     </module>
     <module name="UnusedMethodReporter"/>
 
     <module name="DuplicateLines">
         <property name="min" value="15"/>
     </module>
-    <module name="CommentedCode">
-        <property name="min" value="3"/>
-    </module>
+
     <module name="FilesPerPackage">
         <property name="max" value="15"/>
     </module>
