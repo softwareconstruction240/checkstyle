@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Reports successive lines of commented out code
@@ -16,6 +17,13 @@ import java.util.Set;
 public class CommentedCode extends AbstractFileSetCheck {
 
     private static final Set<Character> CODE_LINE_END_CHARS = Set.of(';', ',', '{', '}', '(', ')', '/');
+
+    private static final String STRINGS_REGEX = "^[^\"]*((?<!/)\"[^\"]*(?<!/)\"[^\"]*)*";
+    private static final String BLOCK_COMMENT_START_REGEX = STRINGS_REGEX + "/\\*";
+    private static final String BLOCK_COMMENT_END_REGEX = STRINGS_REGEX + "\\*/";
+
+    private static final Pattern BLOCK_COMMENT_START_PATTERN = Pattern.compile(BLOCK_COMMENT_START_REGEX);
+    private static final Pattern BLOCK_COMMENT_END_PATTERN = Pattern.compile(BLOCK_COMMENT_END_REGEX);
 
     private int min = 5;
 
@@ -50,16 +58,16 @@ public class CommentedCode extends AbstractFileSetCheck {
             if (line.isBlank()) {
                 continue;
             }
-            if (!line.startsWith("//") && !line.contains("/*") && !inBlockComment && line.contains("\"\"\"")) {
+            if (!line.startsWith("//") && !beginsBlockComment(line) && !inBlockComment && line.contains("\"\"\"")) {
                 inTextBlock = !inTextBlock;
             }
-            if(inTextBlock) {
+            if (inTextBlock) {
                 continue;
             }
-            if (!line.startsWith("//") && line.contains("/*") && !line.contains("/**")) {
+            if (!line.startsWith("//") && beginsBlockComment(line)) {
                 inBlockComment = true;
             }
-            if (line.contains("*/")) {
+            if (endsBlockComment(line)) {
                 inBlockComment = false;
             }
             if ((inBlockComment || line.startsWith("//")) &&
@@ -81,6 +89,13 @@ public class CommentedCode extends AbstractFileSetCheck {
         }
     }
 
+    private boolean beginsBlockComment(String str) {
+        return BLOCK_COMMENT_START_PATTERN.matcher(str).find();
+    }
+
+    private boolean endsBlockComment(String str) {
+        return BLOCK_COMMENT_END_PATTERN.matcher(str).find();
+    }
 
     /**
      * Reports an instance of commented out code
