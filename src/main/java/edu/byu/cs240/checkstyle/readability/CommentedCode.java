@@ -18,6 +18,7 @@ public class CommentedCode extends AbstractFileSetCheck {
 
     private static final Set<Character> CODE_LINE_END_CHARS = Set.of(';', ',', '{', '}', '(', ')', '/');
 
+    // STRINGS_REGEX matches strings that begin with an even number of non-escaped " chars
     private static final String STRINGS_REGEX = "^[^\"]*((?<!/)\"[^\"]*(?<!/)\"[^\"]*)*";
     private static final String BLOCK_COMMENT_START_REGEX = STRINGS_REGEX + "/\\*";
     private static final String BLOCK_COMMENT_END_REGEX = STRINGS_REGEX + "\\*/";
