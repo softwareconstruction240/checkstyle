@@ -19,7 +19,7 @@ class CommentedCodeTest extends CheckTest {
 
     @Override
     protected boolean isTreeWalkerDependent(Class<?> clazz) {
-        return false;
+        return true;
     }
 
 
@@ -49,6 +49,14 @@ class CommentedCodeTest extends CheckTest {
     @DisplayName("Should find no errors in code that has '/*' in a text block")
     public void should_FindNoErrors_when_TextBlock() throws CheckstyleException {
         String fileName = "testInputs/commentedCode/should_FindNoErrors_when_TextBlock.java";
+        testFiles(0, fileName);
+    }
+
+
+    @Test
+    @DisplayName("Should find no errors in code that has '/*' or related character sequences in a string")
+    public void should_FindNoErrors_when_commentInString() throws CheckstyleException {
+        String fileName = "testInputs/commentedCode/should_FindNoErrors_when_commentInString.java";
         testFiles(0, fileName);
     }
 
