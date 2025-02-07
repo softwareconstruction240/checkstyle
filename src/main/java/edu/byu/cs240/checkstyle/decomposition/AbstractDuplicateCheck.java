@@ -20,6 +20,8 @@ public abstract class AbstractDuplicateCheck extends AbstractCheck {
 
     protected int minComplexity = 50;
 
+    protected DetailAST inViolationAST = null;
+
 
     /**
      * Sets the minimum complexity of the check
@@ -44,6 +46,10 @@ public abstract class AbstractDuplicateCheck extends AbstractCheck {
             return;
         }
 
+        if(inViolationAST != null) {
+            return;
+        }
+
         int complexity = TreeUtils.astComplexity(ast);
         if (complexity < minComplexity) {
             return;
@@ -52,6 +58,7 @@ public abstract class AbstractDuplicateCheck extends AbstractCheck {
         for (DetailAST original : checkedAst.keySet()) {
             if (astEquals(original, ast)) {
                 logViolation(ast, original);
+                inViolationAST = ast;
                 return;
             }
         }
@@ -59,6 +66,13 @@ public abstract class AbstractDuplicateCheck extends AbstractCheck {
         checkedAst.put(ast, getFilePath());
     }
 
+    @Override
+    public void leaveToken(DetailAST ast) {
+        if(inViolationAST == ast) {
+            inViolationAST = null;
+        }
+        super.leaveToken(ast);
+    }
 
     /**
      * Logs violations of duplicates.
