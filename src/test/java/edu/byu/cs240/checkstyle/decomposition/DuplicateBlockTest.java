@@ -60,4 +60,11 @@ class DuplicateBlockTest extends CheckTest {
         testFiles(3, fileName);
     }
 
+    @Test
+    @DisplayName("Should find the correct number of errors in code that has nested duplicate blocks")
+    public void should_FindErrors_when_NestedDuplicateBlocks() throws CheckstyleException {
+        String fileName = "testInputs/duplicateBlock/should_FindErrors_when_NestedDuplicateBlocks.java";
+        testFiles(2, fileName);
+    }
+
 }
