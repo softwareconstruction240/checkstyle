@@ -1,7 +1,6 @@
 package edu.byu.cs240.checkstyle.readability;
 
 import com.puppycrawl.tools.checkstyle.api.AbstractFileSetCheck;
-import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.FileText;
 
 import java.io.File;
