@@ -5,7 +5,6 @@ import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import edu.byu.cs240.checkstyle.util.TreeUtils;
 
-import java.lang.invoke.MethodHandle;
 import java.util.*;
 
 /**

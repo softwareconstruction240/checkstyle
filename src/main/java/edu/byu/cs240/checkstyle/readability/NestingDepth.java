@@ -9,6 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Reports uses of nested code structures that in most styles would indent the code (if/else, loops, try/catch, switch)
+ * farther than a configurable number of levels
+ *
+ * @author Michael Davenport
+ */
 @FileStatefulCheck
 public class NestingDepth extends AbstractCheck {
     private static final Set<Integer> SLIST_EXCLUDED_PARENTS = Set.of(TokenTypes.METHOD_DEF, TokenTypes.LITERAL_CATCH, TokenTypes.CASE_GROUP);
@@ -64,6 +70,13 @@ public class NestingDepth extends AbstractCheck {
         }
     }
 
+    /**
+     * Determines if the provided token should be excluded as a nesting level. Generally this is because it is
+     * directly tied to another token that was included. For example, "else if" would double count (the else block
+     * and the if statement are separate) if it wasn't excluded here.
+     * @param ast AST token to check
+     * @return true if ast should be excluded, false otherwise
+     */
     private boolean isExcluded(DetailAST ast) {
         return isElseIf(ast) || isSListExcluded(ast) || isElseWithBracesOfIfWithoutBraces(ast) || isBlockWithBraces(ast);
     }
