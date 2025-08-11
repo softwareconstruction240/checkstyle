@@ -4,6 +4,9 @@ import com.puppycrawl.tools.checkstyle.api.AbstractCheck;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -17,9 +20,7 @@ public class CommentedCode extends AbstractCheck {
 
     private int min = 5;
 
-    private int firstGroupCommentedLine;
-
-    private int numSuccessiveLines;
+    private final List<CommentNode> commentNodes = new ArrayList<>();
 
     /**
      * Sets the minimum number of successive lines of commented code before reporting
@@ -51,59 +52,53 @@ public class CommentedCode extends AbstractCheck {
     }
 
     @Override
-    public void beginTree(DetailAST rootAST) {
-        resetCounters();
-    }
-
-    @Override
     public void finishTree(DetailAST rootAST) {
-        checkLines();
+        checkCommentList();
     }
 
     @Override
     public void visitToken(DetailAST ast) {
-        String[] split = ast.getText().split("\n");
-        int lineNum = ast.getLineNo();
-        for(int i = 0; i < split.length; i++) {
-            String line = split[i].trim();
+        CommentNode commentNode = new CommentNode(ast, Arrays.stream(ast.getText().trim().split("\r?\n")).map(String::trim).toList());
 
-            if(line.isBlank()) {
-                continue;
-            }
+        if(!commentNodes.isEmpty() && ast.getLineNo() > commentNodes.getLast().getLastLineNo() + 1) {
+            checkCommentList();
+        }
 
-            if(CODE_LINE_END_CHARS.contains(line.charAt(line.length() - 1))) {
-                handleCommentedLine(lineNum + i);
+        commentNodes.add(commentNode);
+    }
+
+    private void checkCommentList() {
+        List<String> commentLines = new ArrayList<>();
+        commentNodes.forEach(node -> commentLines.addAll(node.lines()));
+
+        if (commentLines.size() < min) {
+            commentNodes.clear();
+            return;
+        }
+
+        int numSuccessiveLines = 0;
+        for(String comment : commentLines) {
+            if(comment.isBlank() || CODE_LINE_END_CHARS.contains(comment.charAt(comment.length() - 1))) {
+                numSuccessiveLines++;
             }
             else {
-                checkLines();
-                resetCounters();
+//            int numSuccessiveLines = commentNodes.getLast().getLastLineNo() + 1 - commentNodes.getFirst().ast().getLineNo();
+                if(numSuccessiveLines >= min) {
+                    log(commentNodes.getFirst().ast(), String.format("%d lines of commented out code", numSuccessiveLines));
+                }
+                numSuccessiveLines = 0;
             }
         }
-    }
-
-    private void handleCommentedLine(int lineNum) {
-        if(firstGroupCommentedLine + numSuccessiveLines < lineNum) {
-            checkLines();
-            resetCounters();
-        }
-
-        if(numSuccessiveLines == 0) {
-            firstGroupCommentedLine = lineNum;
-            numSuccessiveLines = 1;
-        }
-        else {
-            numSuccessiveLines++;
-        }
-    }
-
-    private void resetCounters() {
-        firstGroupCommentedLine = Integer.MIN_VALUE;
-        numSuccessiveLines = 0;
-    }
-
-    private void checkLines() {
         if(numSuccessiveLines >= min) {
-            log(firstGroupCommentedLine, String.format("%d lines of commented out code", numSuccessiveLines));
+            log(commentNodes.getFirst().ast(), String.format("%d lines of commented out code", numSuccessiveLines));
+        }
+
+        commentNodes.clear();
+    }
+
+    private record CommentNode(DetailAST ast, List<String> lines) {
+        int getLastLineNo() {
+            return ast.getLineNo() + lines.size() - 1;
         }
     }
 }
