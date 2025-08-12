@@ -164,7 +164,7 @@ public class CommentedCode extends AbstractCheck {
         double totalConfidence = totalScore / totalWeight;
 
         if (totalConfidence >= minConfidence) {
-            log(commentNodes.getFirst().ast(), String.format("%d comment lines likely commented code (%d%% confidence)",
+            log(commentNodes.getFirst().ast(), String.format("%d comment lines likely containing commented code (%d%% confidence)",
                     commentNodes.getLast().getLastLineNo() + 1 - commentNodes.getFirst().ast().getLineNo(),
                     Math.round(totalConfidence * 100)));
         }
