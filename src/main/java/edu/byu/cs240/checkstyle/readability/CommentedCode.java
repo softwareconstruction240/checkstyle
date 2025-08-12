@@ -148,7 +148,7 @@ public class CommentedCode extends AbstractCheck {
 
         String[] allWords = entireComment.toLowerCase().split("\\s+");
         long reservedWordCount = Arrays.stream(allWords).filter(JAVA_RESERVED_WORDS::contains).count();
-        double reservedWordScore = (double) reservedWordCount / allWords.length * reservedWordWeight;
+        double reservedWordScore = Math.min(3.0 * reservedWordCount / allWords.length, 1) * reservedWordWeight;
 
         int totalWeight = reservedWordWeight;
         double totalScore = reservedWordScore;
