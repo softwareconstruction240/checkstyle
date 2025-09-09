@@ -72,7 +72,7 @@ class CommentedCodeTest extends CheckTest {
     @DisplayName("Should find errors in code that has code comments")
     public void should_FindErrors_when_CodeComments() throws CheckstyleException {
         String fileName = "testInputs/commentedCode/should_FindErrors_when_CodeComments.java";
-        testFiles(2, fileName);
+        testFiles(3, fileName);
     }
 
 

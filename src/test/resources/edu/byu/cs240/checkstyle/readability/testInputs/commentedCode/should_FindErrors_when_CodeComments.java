@@ -15,5 +15,33 @@ class should_FindErrors_when_CodeComments {
 //        int i = 2477;
 //        int j = 1734;
 //        System.out.println(i + j);
+        System.out.println("Hello World!");
+        int i = 1234;
+        int j = 4321;
+        System.out.println(i + j);
+
+
+//
+//
+//        System.out.println("Hello World!");
+//
+//
+//
+//        int i = 7;
+//
+//
+//
+//
+//        int j = 4;
+//
+//
+//
+//
+//        System.out.println(i + j);
+//
+//
+
+
+
     }
 }
