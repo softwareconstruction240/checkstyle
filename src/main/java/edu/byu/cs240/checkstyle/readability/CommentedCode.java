@@ -132,7 +132,7 @@ public class CommentedCode extends AbstractCheck {
         List<String> commentLines = new ArrayList<>();
         commentNodes.forEach(node -> commentLines.addAll(node.lines()));
 
-        if (commentLines.size() < min) {
+        if (commentLines.stream().filter(line -> !line.isBlank()).count() < min) {
             commentNodes.clear();
             return;
         }
