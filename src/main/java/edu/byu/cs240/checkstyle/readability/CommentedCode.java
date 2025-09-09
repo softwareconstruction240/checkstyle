@@ -146,7 +146,7 @@ public class CommentedCode extends AbstractCheck {
         double singleLineNonCodeScore = maxMatcher(commentLines, SINGLE_LINE_NONCODE_PATTERNS);
         double singleLineScore = (singleLineCodeScore - singleLineNonCodeScore) * singleLineWeight;
 
-        String[] allWords = entireComment.toLowerCase().split("\\s+");
+        String[] allWords = entireComment.trim().toLowerCase().split("\\s+");
         long reservedWordCount = Arrays.stream(allWords).filter(JAVA_RESERVED_WORDS::contains).count();
         double reservedWordScore = Math.min(3.0 * reservedWordCount / allWords.length, 1) * reservedWordWeight;
 
