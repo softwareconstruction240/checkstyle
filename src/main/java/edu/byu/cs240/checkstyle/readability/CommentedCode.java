@@ -60,6 +60,8 @@ public class CommentedCode extends AbstractCheck {
     private int singleLineWeight = 7;
     private int reservedWordWeight = 2;
 
+    private int minWords = 10;
+
     private final List<CommentNode> commentNodes = new ArrayList<>();
 
     /**
@@ -90,6 +92,10 @@ public class CommentedCode extends AbstractCheck {
 
     public void setSingleLineWeight(int singleLineWeight) {
         this.singleLineWeight = singleLineWeight;
+    }
+
+    public void setMinWords(int minWords) {
+        this.minWords = minWords;
     }
 
     @Override
@@ -146,12 +152,30 @@ public class CommentedCode extends AbstractCheck {
         double singleLineNonCodeScore = maxMatcher(commentLines, SINGLE_LINE_NONCODE_PATTERNS);
         double singleLineScore = (singleLineCodeScore - singleLineNonCodeScore) * singleLineWeight;
 
-        String[] allWords = entireComment.trim().toLowerCase().split("\\s+");
-        long reservedWordCount = Arrays.stream(allWords).filter(JAVA_RESERVED_WORDS::contains).count();
-        double reservedWordScore = Math.min(3.0 * reservedWordCount / allWords.length, 1) * reservedWordWeight;
+        String[] allWords = entireComment.trim().split("\\W+");
+        double reservedWordScore = 0;
+        if(Arrays.stream(allWords).filter(word -> !word.isBlank()).count() > minWords) {
+            long reservedWordCount = Arrays.stream(allWords).filter(JAVA_RESERVED_WORDS::contains).count();
+            reservedWordScore = Math.min(3.0 * reservedWordCount / allWords.length, 1) * reservedWordWeight;
+        }
 
-        int totalWeight = reservedWordWeight;
-        double totalScore = reservedWordScore;
+        double totalConfidence = getTotalConfidence(reservedWordScore, entireCommentScore, singleLineScore);
+        if (totalConfidence >= minConfidence) {
+            log(commentNodes.getFirst().ast(), String.format("%d comment lines likely containing commented code (%d%% confidence)",
+                    commentNodes.getLast().getLastLineNo() + 1 - commentNodes.getFirst().ast().getLineNo(),
+                    Math.round(totalConfidence * 100)));
+        }
+
+        commentNodes.clear();
+    }
+
+    private double getTotalConfidence(double reservedWordScore, double entireCommentScore, double singleLineScore) {
+        int totalWeight = 0;
+        double totalScore = 0;
+        if(reservedWordScore != 0) {
+            totalWeight += reservedWordWeight;
+            totalScore += reservedWordScore;
+        }
         if(entireCommentScore != 0) {
             totalWeight += entireCommentWeight;
             totalScore += entireCommentScore;
@@ -161,15 +185,7 @@ public class CommentedCode extends AbstractCheck {
             totalScore += singleLineScore;
         }
 
-        double totalConfidence = totalScore / totalWeight;
-
-        if (totalConfidence >= minConfidence) {
-            log(commentNodes.getFirst().ast(), String.format("%d comment lines likely containing commented code (%d%% confidence)",
-                    commentNodes.getLast().getLastLineNo() + 1 - commentNodes.getFirst().ast().getLineNo(),
-                    Math.round(totalConfidence * 100)));
-        }
-
-        commentNodes.clear();
+        return totalWeight == 0 ? 0 : totalScore / totalWeight;
     }
 
     private double maxMatcher(String match, Map<Pattern, Double> patternScores) {
