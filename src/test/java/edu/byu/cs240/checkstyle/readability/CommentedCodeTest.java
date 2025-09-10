@@ -60,12 +60,19 @@ class CommentedCodeTest extends CheckTest {
         testFiles(0, fileName);
     }
 
+    @Test
+    @DisplayName("Should find no errors in code that has commented code below the min threshold")
+    public void should_FindNoErrors_when_belowMinThreshold() throws CheckstyleException {
+        String fileName = "testInputs/commentedCode/should_FindNoErrors_when_belowMinThreshold.java";
+        testFiles(0, fileName);
+    }
+
 
     @Test
     @DisplayName("Should find errors in code that has code comments")
     public void should_FindErrors_when_CodeComments() throws CheckstyleException {
         String fileName = "testInputs/commentedCode/should_FindErrors_when_CodeComments.java";
-        testFiles(2, fileName);
+        testFiles(3, fileName);
     }
 
 
