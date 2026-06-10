@@ -41,17 +41,17 @@
                      value="Parameter name ''{0}'' must match pattern ''{1}'' (lowerCamelCase)."/>
         </module>
         <module name="LambdaParameterName">
-            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+            <property name="format" value="^[a-z][a-zA-Z0-9]*|_$"/>
             <message key="name.invalidPattern"
                      value="Lambda parameter name ''{0}'' must match pattern ''{1}'' (lowerCamelCase)."/>
         </module>
         <module name="CatchParameterName">
-            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+            <property name="format" value="^[a-z][a-zA-Z0-9]*|_$"/>
             <message key="name.invalidPattern"
                      value="Catch parameter name ''{0}'' must match pattern ''{1}'' (lowerCamelCase)."/>
         </module>
         <module name="LocalVariableName">
-            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+            <property name="format" value="^[a-z][a-zA-Z0-9]*|_$"/>
             <message key="name.invalidPattern"
                      value="Local variable name ''{0}'' must match pattern ''{1}'' (lowerCamelCase)."/>
         </module>
@@ -61,7 +61,7 @@
                      value="Local variable name ''{0}'' must match pattern ''{1}'' (lowerCamelCase)."/>
         </module>
         <module name="PatternVariableName">
-            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+            <property name="format" value="^[a-z][a-zA-Z0-9]*|_$"/>
             <message key="name.invalidPattern"
                      value="Pattern variable name ''{0}'' must match pattern ''{1}'' (lowerCamelCase)."/>
         </module>
